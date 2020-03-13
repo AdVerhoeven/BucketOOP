@@ -10,6 +10,7 @@ namespace BucketOOP
         {
             TypeMisMatch,
             InvalidSize,
+            InvalidVolume,
         }
 
         public ContainerErrorCodes Error { get; set; }

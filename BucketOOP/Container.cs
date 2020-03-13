@@ -7,8 +7,10 @@ namespace BucketOOP
     abstract class Container
     {
         #region Properties
+
         #region Private
         private uint volume = 0;
+
         #endregion
 
         #region Public
@@ -24,19 +26,23 @@ namespace BucketOOP
                 if (value >= Size)
                 {
                     //Calculate the overflow.
-                    uint overflow = value - Size;                    
+                    uint overflow = value - Size;
                     volume = Size;
+                    //Invoke the full event and include the overflow.
                     Full?.Invoke(this, new ContainerEventArgs(overflow));
                 }
                 else
                 {
+                    //value fits our container, so fill it.
                     volume = value;
                 }
             }
         }
-        public bool WarnWhenFull = false;
-        public bool AcceptOverflow = true;
+
+        public bool WarnWhenFull { get; set; } = false;
+        public bool AcceptOverflow { get; set; } = true;
         #endregion
+
         #endregion
 
         #region Constructors
@@ -74,45 +80,47 @@ namespace BucketOOP
         /// <summary>
         /// Empties a container with a given amount.
         /// </summary>
-        /// <param name="x">The amount to remove from the container</param>
-        public void Empty(uint x)
+        /// <param name="drain">The amount to remove from the container.</param>
+        public void Empty(uint drain)
         {
-            if (volume >= x)
+            if (volume >= drain)
             {
-                volume -= x;
+                volume -= drain;
             }
             else
             {
                 //Best practice??
                 Empty();
 
-                //throw new InvalidOperationException($"Cannot subtract {x} from {volume}. " +
-                //    $"Would result in a negative volume.");
+                //throw new ContainerException($"Cannot subtract {x} from {volume}. " +
+                //    $"Would result in a negative volume.", ContainerException.ContainerErrorCodes.InvalidVolume);
             }
         }
 
         /// <summary>
         /// Fills a container with a given amount.
         /// </summary>
-        /// <param name="x">The amount to fill the container with.</param>
-        public virtual void Fill(uint x)
+        /// <param name="fillWith">The amount to fill the container with.</param>
+        public virtual void Fill(uint fillWith)
         {
-            Volume += x;
+            Volume += fillWith;
         }
 
         /// <summary>
-        /// Fills one bucket with the contents of the other.
+        /// Fills one container with the contents of the other.
         /// </summary>
-        /// <param name="b"></param>
+        /// <param name="c">The container to pour from.</param>
         public virtual void FillWith(Container c)
         {
+            #region old code
             //Old code, I made it virtual to allow the override to determine wether you can fill one container
             //with the other if they do not have matching types.
             //if (GetType() != c.GetType())
             //{
             //    throw new ContainerException($"Can't add contents of {c.GetType()} to a {GetType()}",
             //        ContainerException.ContainerErrorCodes.TypeMisMatch);
-            //}
+            //} 
+            #endregion
             if (!AcceptOverflow)
             {
                 //Since we do not accept overflow, we keep some contents in the other bucket.
@@ -122,17 +130,17 @@ namespace BucketOOP
                 Volume = (totalVol > this.Size) ? Size : Volume + c.Volume;
                 if (totalVol > this.Size)
                 {
-                    //pour back the overflow into its old bucket.
+                    //pour back the overflow into its old container.
                     c.Volume = totalVol - this.Size;
                 }
             }
             else
             {
                 Volume += c.Volume;
-                //Empty the bucket we just poured into our bucket.
+                //Empty the bucket we just poured into our container.
                 c.Volume = 0;
             }
-            
+
         }
 
         /// <summary>

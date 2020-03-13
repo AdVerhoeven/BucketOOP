@@ -43,9 +43,13 @@ namespace BucketOOP
         public Bucket(uint size, uint volume) : this(size) => Volume = volume;
         #endregion
         #region Methods
+        /// <summary>
+        /// Attempts to fill a bucket with the contents of c.
+        /// </summary>
+        /// <param name="c">The container that you want to pour into the bucket.</param>
         public override void FillWith(Container c)
         {
-            if(c.GetType() == typeof(Bucket))
+            if(c is Bucket)
             {
                 base.FillWith(c);
             }
